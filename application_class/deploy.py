@@ -1,12 +1,8 @@
-from pathlib import Path
-
 from beaker import client, sandbox
 
-from app import app, hello
-from utils import build
+from contract import app, read_state
 
-root_path = Path(__file__).parent
-build(root_path / "artifacts", app)
+app.build().export("./artifacts")
 
 accounts = sandbox.kmd.get_accounts()
 sender = accounts[0]
@@ -18,7 +14,8 @@ app_client = client.ApplicationClient(
     signer=sender.signer,
 )
 
+
 app_client.create()
 
-return_value = app_client.call(hello, name="Beaker").return_value
-print(return_value)
+return_value = app_client.call(read_state).return_value
+print(f"The default state is: {return_value}")
