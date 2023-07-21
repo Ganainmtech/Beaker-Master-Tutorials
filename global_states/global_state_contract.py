@@ -1,23 +1,20 @@
-from pathlib import Path
+from beaker import Application, GlobalStateValue, unconditional_create_approval
+from pyteal import Bytes, Expr, TealType, abi
 
-from beaker import *
-from pyteal import *
 
-from utils import build
+class GlobalState:
+    my_desciption = GlobalStateValue(
+        stack_type=Teal.Type.bytes,
+        default=Bytes("Lana is the best!"),
+        static=True,
+    )
 
-app = Application("HelloWorld")
+
+app = Application("GlobalStateValue", state=GlobalState()).apply(
+    unconditional_create_approval, initialize_global_state=True
+)
 
 
 @app.external
-def hello(name: abi.String, *, output: abi.String) -> Expr:
-    return output.set(Concat(Bytes("Hello, "), name.get()))
-
-
-@app.delete(bare=True, authorize=Authorize.only(Global.creator_address()))
-def delete() -> Expr:
-    return Approve()
-
-
-if __name__ == "__main__":
-    root_path = Path(__file__).parent
-    build(root_path / "artifacts", app)
+def set_app_State_val(v: abi.String) -> Expr:
+    return app.state.my_description.set(v.get())
