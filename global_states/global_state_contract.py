@@ -18,3 +18,9 @@ app = Application("GlobalStateValue", state=GlobalState()).apply(
 @app.external
 def set_app_State_val(v: abi.String) -> Expr:
     return app.state.my_description.set(v.get())
+
+
+@app.external(read_only=True)
+def get_app_state_val(*, output: abi.String) -> Expr:
+    return output.set(app.state.my_description)
+    
